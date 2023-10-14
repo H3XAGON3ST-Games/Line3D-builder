@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://cjxs4ab1gnk36"]
+
+[ext_resource type="Script" path="res://addons/Line3D/Line3D.gd" id="1_uejt2"]
+
+[node name="Line3D" type="Node3D"]
+script = ExtResource("1_uejt2")
+
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="."]
+polygon = PackedVector2Array(0, 0.1, 0.0587785, 0.0809017, 0.0951056, 0.0309017, 0.0951056, -0.0309017, 0.0587785, -0.0809017, 1.22461e-17, -0.1, -0.0587785, -0.0809017, -0.0951056, -0.0309017, -0.0951056, 0.0309017, -0.0587785, 0.0809017)
+mode = 2
+path_node = NodePath("")
+path_interval_type = 1
+path_interval = 0.05
+path_simplify_angle = 3.5
+path_rotation = 2
+path_local = true
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false
+smooth_faces = true
