@@ -1,5 +1,6 @@
 @tool
 extends Node3D
+class_name Line3D
 
 # Fork of the project Godot-3D-Line-Renderer by ApocalypticPhosphorus
 #
@@ -43,27 +44,37 @@ extends Node3D
 			line_resoultion = value
 			_update_line()
 
-@export_node_path("Path3D") var path: 
+@export var custom_material: StandardMaterial3D :
+	set(value):
+		if (custom_material != value):
+			custom_material = value
+			_update_line()
+
+var path: Path3D: 
 	set(value):
 		if (path != value):
 			path = value
 			_update_line()
 
-@onready var csg_polygon := $CSGPolygon3D
+var csg_polygon: CSGPolygon3D
 
 func _update_line() -> void:
-	csg_polygon = get_node_or_null(^"CSGPolygon3D") if typeof(csg_polygon) == TYPE_NIL else csg_polygon
+	if csg_polygon == null:
+		_ready()
 	
-	if path == null or csg_polygon == null:
-		return
+	if path == null:
+		_ready()
 	
-	if !path.is_empty() and csg_polygon.path_node.is_empty():
-		csg_polygon.path_node = get_fix_node_path(path)
+	csg_polygon.material = custom_material
 	
-	if path.is_empty() and !csg_polygon.path_node.is_empty():
+	if path != null and csg_polygon.path_node.is_empty():
+		csg_polygon.path_node = NodePath("../" + path.name)
+	
+	if path == null and !csg_polygon.path_node.is_empty():
 		csg_polygon.path_node = NodePath("")
+		_ready()
 	
-	if !path.is_empty() and !csg_polygon.path_node.is_empty():
+	if path != null and !csg_polygon.path_node.is_empty():
 		var circle = PackedVector2Array()
 		for degree in line_resoultion:
 			var x = (line_radius * radius_multiplier) * sin(PI * 2 * degree / line_resoultion)
@@ -72,5 +83,25 @@ func _update_line() -> void:
 			circle.append(coords)
 		csg_polygon.polygon = circle
 
+func _ready():
+	#await get_tree().process_frame
+	csg_polygon = get_node_or_null(^"CSGPolygon3D") if typeof(csg_polygon) == TYPE_NIL else csg_polygon
+	
+	for child in get_children():
+		if child is Path3D:
+			path = child
+			break
+	
+	if path != null: 
+		_update_line()
+	
+	#push_warning("Path3D doesn't exist in Line3D. Please add Path3D")
+	
+
 func get_fix_node_path(nodepath: NodePath) -> NodePath: # To fix the path to local to the parent
 	return NodePath("../" + nodepath.get_name(0))
+
+
+func _notification(what):
+	if what == 24:
+		_ready()
